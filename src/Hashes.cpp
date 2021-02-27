@@ -8,61 +8,61 @@
 #include <assert.h>
 //#include <emmintrin.h>
 //#include <xmmintrin.h>
+#include <inttypes.h>
 
 
 //best hash in the whole world
 void StudentHash(const void * key, int len, uint32_t seed, void * out) {
-    
     //some initialization stuff (some is usually done in preprocessor, but this is for smhasher)
-    const uint8_t* data = (const uint8_t*) key;
+    const uint32_t* data = (const uint32_t*) key;
     int CHUNK_SIZE = 4;
-    srand(seed);
-    uint32_t dig = rand();
+    uint32_t dig;
+    uint32_t xor_tot = 0x2ba320c4;
+    uint32_t sum_tot = 0xd1d729a9;
+    uint64_t large_dig = (uint64_t) len;
 
-    int inc = 0; //how much should we increment the pointer?
-    unsigned int reads = 0;
-    while (reads * 4 < len) {
-        inc = reads * 4;
+    for(int i = 0; i < len / CHUNK_SIZE; i++){
+      xor_tot ^= data[i] * 0xC6A499BF;
+      sum_tot += data[i] * 0x9DD5886F;
 
-        //xor the 4 bytes we read in
-        int xor_result = dig; 
-        for(int i = 0; i < CHUNK_SIZE; i++) {
-            if (inc + i < len) {
-                xor_result ^= data[inc + i];
-            }
-            //"padding"
-            else if (inc + i >= len) {
-                xor_result ^= 0;
-            }
-        }
-        reads ++;
-        srand(xor_result);
-
-        /* Due to the way integers and rand work, the leading bit will almost always be zero, 
-           because it's returning an integer that will always start with <= 2. Not to worry,
-           this can be circumvented by taking the next random number and taking the last 2 bytes
-           of each number. */
-        //first number
-        unsigned int num1 = rand();
-        unsigned int num2 = rand();
-
-        //zero last 16 bits
-        /* printf("num1 was: %08x\n", num1); */
-        num1 = num1 << 16;
-        /* printf("num1 is: %08x\n", num1); */
-        //zero the first 16 bits 
-        num2 = num2 << 16;
-        /* printf("num2 is: %08x\n", num2); */
-        num2 = num2 >> 16; 
-        /* printf("num2 is: %08x\n", num2); */
-        //combine num1 and num2
-        dig = num1 | num2;
-        /* printf("dig  is: %08x\n", dig); */
-        /* printf("Rand is: %i\n", dig); */
-        /* printf("%s\n", chunk); */
+      for(int j = 0; j <= 32; j++){
+        large_dig ^= ((uint64_t) xor_tot << j) + j;
+        large_dig += ((uint64_t) sum_tot << j) + j;
+        large_dig += ((uint64_t) xor_tot << j) + j;
+        large_dig ^= ((uint64_t) sum_tot << j) + j;
+      }
     }
-    *(uint32_t*)out = dig;
+
+    dig = large_dig >> (32 - (large_dig % 32));
+
+
+    uint8_t byte1 = dig;
+    uint8_t byte2 = dig >> 8;
+    uint8_t byte3 = dig >> 16;
+    uint8_t byte4 = dig >> 24;
+
+    switch (large_dig % 4)
+    {
+    case 0:
+      dig = (byte1 << 24) + (byte2 << 8) + (byte3) + (byte4 << 16);
+      break;
+    case 1:
+      dig = (byte1 << 8) + (byte2 << 16) + (byte3) + (byte4 << 24);
+      break;
+    case 2:
+      dig = (byte1) + (byte2 << 8) + (byte3 << 24) + (byte4 << 16);
+      break;
+    case 3:
+      dig = (byte1 << 16) + (byte2 << 24) + (byte3 << 8) + (byte4);
+      break;
+    default:
+      break;
+    }
+
+    *(uint32_t*)out = dig ^ xor_tot ^ sum_tot;
 }
+
+//ef1dbf9e  zero/mod/13
 
 //----------------------------------------------------------------------------
 // fake / bad hashes

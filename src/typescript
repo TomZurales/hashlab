@@ -1,0 +1,6 @@
+Script started on 2021-02-18 11:53:03-06:00 [TERM="xterm-256color" TTY="/dev/pts/2" COLUMNS="211" LINES="55"]
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                   ]2;tom@tom-laptop:~/workspace/hashlab/src]1;..e/hashlab/src[0m[27m[24m[J[01;32m➜  [36msrc[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004h../smH[?1l>[?2004l
+]2;./smH]1;./smHzsh: no such file or directory: ./smH
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                   ]2;tom@tom-laptop:~/workspace/hashlab/src]1;..e/hashlab/src[0m[27m[24m[J[01;31m➜  [36msrc[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on 2021-02-18 11:53:09-06:00 [COMMAND_EXIT_CODE="127"]
